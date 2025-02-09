@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_02_09_182501) do
+ActiveRecord::Schema[8.0].define(version: 2025_02_09_182502) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -24,4 +24,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_182501) do
     t.datetime "updated_at", null: false
     t.index ["code"], name: "index_bibles_on_code", unique: true
   end
+
+  create_table "books", force: :cascade do |t|
+    t.bigint "bible_id", null: false
+    t.string "title", null: false
+    t.integer "number", null: false
+    t.string "code", limit: 3, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["bible_id", "code"], name: "index_books_on_bible_id_and_code", unique: true
+    t.index ["bible_id"], name: "index_books_on_bible_id"
+  end
+
+  add_foreign_key "books", "bibles", on_delete: :restrict
 end
