@@ -41,6 +41,7 @@ namespace :bible do
         # Extract bible data
         chapter = nil
         heading = nil
+        verse = nil
         book_content.root.children.each.with_index(1) do |segment_node, segment_node_id|
           case segment_node.node_name
           when "chapter"
@@ -61,6 +62,22 @@ namespace :bible do
               heading_level = section_header_styles[segment_style.to_sym]
               heading = Heading.create!(bible: bible, book: book, chapter: chapter, level: heading_level, title: segment_node.text)
               Rails.logger.info "Loaded Bible Book ##{book.number}: [#{book.code}] #{book.title} Chapter ##{chapter.number} Heading #{heading.level} (#{heading.title})"
+            end
+
+            segment_node.children.each do |fragment_node|
+              case fragment_node.node_type
+              when Nokogiri::XML::Node::ELEMENT_NODE
+                case fragment_node.node_name
+                when "verse"
+                  if fragment_node.key?("sid")
+                    verse_number = fragment_node["number"].to_i
+                    verse = Verse.create!(bible: bible, book: book, chapter: chapter, number: verse_number)
+                    Rails.logger.info "Loaded Bible Book ##{book.number}: [#{book.code}] #{book.title} Chapter ##{chapter.number} Verse #{verse.number}"
+                  elsif fragment_node.key?("eid")
+                    verse = nil
+                  end
+                end
+              end
             end
           end
         end
