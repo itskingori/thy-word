@@ -1,6 +1,7 @@
 class Bible < ApplicationRecord
   # Associations
   has_many :books, dependent: :restrict_with_exception
+  has_many :chapters, dependent: :restrict_with_exception
 
   # Validations
   validates :code, presence: true, length: { maximum: 3 }
