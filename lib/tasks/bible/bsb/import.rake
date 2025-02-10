@@ -40,6 +40,7 @@ namespace :bible do
 
         # Extract bible data
         chapter = nil
+        heading = nil
         book_content.root.children.each.with_index(1) do |segment_node, segment_node_id|
           case segment_node.node_name
           when "chapter"
@@ -49,6 +50,17 @@ namespace :bible do
               Rails.logger.info "Loaded Bible Book ##{book.number}: [#{book.code}] #{book.title} Chapter ##{chapter.number}"
             elsif segment_node.key?("eid")
               chapter = nil
+            end
+          when "para"
+            segment_style = segment_node["style"]
+
+            next if Segment::HEADER_STYLES_INTRODUCTORY.include? segment_style
+
+            section_header_styles = Segment::HEADER_STYLES_SECTIONS_MAJOR.merge(Segment::HEADER_STYLES_SECTIONS_MINOR)
+            if section_header_styles.key? segment_style.to_sym
+              heading_level = section_header_styles[segment_style.to_sym]
+              heading = Heading.create!(bible: bible, book: book, chapter: chapter, level: heading_level, title: segment_node.text)
+              Rails.logger.info "Loaded Bible Book ##{book.number}: [#{book.code}] #{book.title} Chapter ##{chapter.number} Heading #{heading.level} (#{heading.title})"
             end
           end
         end
