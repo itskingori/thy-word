@@ -2,6 +2,7 @@ class Book < ApplicationRecord
   # Associations
   belongs_to :bible
   has_many :chapters, dependent: :restrict_with_exception
+  has_many :verses, dependent: :restrict_with_exception
 
   # Validations
   validates :bible, presence: true

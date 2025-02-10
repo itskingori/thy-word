@@ -1,11 +1,12 @@
-class Chapter < ApplicationRecord
+class Verse < ApplicationRecord
   # Associations
   belongs_to :bible
   belongs_to :book
-  has_many :verses, dependent: :restrict_with_exception
+  belongs_to :chapter
 
   # Validations
   validates :bible, presence: true
   validates :book, presence: true
+  validates :chapter, presence: true
   validates :number, presence: true, numericality: { only_integer: true, greater_than: 0 }
 end
