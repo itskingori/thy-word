@@ -21,7 +21,7 @@ namespace :bible do
       bible = Bible.find_or_create_by!(name: bible_name, code: bible_abbreviation, statement: bible_statement, rights_holder_name: bible_rights_holder_name, rights_holder_url: bible_rights_holder_url)
       Rails.logger.info "Loaded Bible: [#{bible.code}] #{bible.name}"
 
-      # Read books' metadata
+      # Read books' metadata and contents
       metadata_content.xpath("/DBLMetadata/publications/publication/structure/content").each.with_index(1) do |book_info, book_number|
         # Extract bible data
         book_code = book_info["role"]
@@ -31,6 +31,27 @@ namespace :bible do
         # Save book data into database
         book = Book.find_or_create_by!(bible: bible, title: book_title, number: book_number, code: book_code)
         Rails.logger.info "Loaded Bible Book ##{book.number}: [#{book.code}] #{book.title}"
+
+        # Read book contents
+        book_relative_file_path = book_info["src"]
+        book_file_path = File.join(bible_folder, book_relative_file_path)
+        book_file = File.read(book_file_path)
+        book_content = Nokogiri::XML(book_file)
+
+        # Extract bible data
+        chapter = nil
+        book_content.root.children.each.with_index(1) do |segment_node, segment_node_id|
+          case segment_node.node_name
+          when "chapter"
+            if segment_node.key?("sid")
+              chapter_number = segment_node["number"].to_i
+              chapter = Chapter.create!(bible: bible, book: book, number: chapter_number)
+              Rails.logger.info "Loaded Bible Book ##{book.number}: [#{book.code}] #{book.title} Chapter ##{chapter.number}"
+            elsif segment_node.key?("eid")
+              chapter = nil
+            end
+          end
+        end
       end
     end
   end
