@@ -64,6 +64,9 @@ namespace :bible do
               Rails.logger.info "Loaded Bible Book ##{book.number}: [#{book.code}] #{book.title} Chapter ##{chapter.number} Heading #{heading.level} (#{heading.title})"
             end
 
+            segment = Segment.create!(bible: bible, book: book, chapter: chapter, heading: heading, style: segment_style)
+            Rails.logger.info "Loaded Bible Book ##{book.number}: [#{book.code}] #{book.title} Chapter ##{chapter&.number} Segment #{segment.id}"
+
             segment_node.children.each do |fragment_node|
               case fragment_node.node_type
               when Nokogiri::XML::Node::ELEMENT_NODE
