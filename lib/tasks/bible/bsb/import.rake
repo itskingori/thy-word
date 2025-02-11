@@ -80,6 +80,10 @@ namespace :bible do
                   fragment_kind = "reference"
                 when "note"
                   fragment_kind = "note"
+                  footnote_text = fragment_node.children.select { |note_child_node| note_child_node.node_name == "char" && note_child_node['style'] == "ft" }.first.text.strip
+                  footnote = Footnote.create!(bible: bible, book: book, chapter: chapter, verse: verse, content: footnote_text)
+                  fragment_text = "#{footnote.id}"
+                  Rails.logger.info "Loaded Bible Book ##{book.number}: [#{book.code}] #{book.title} Chapter ##{chapter.number} Verse #{verse.number} Footnote #{footnote.id}"
                 when "verse"
                   if fragment_node.key?("sid")
                     show_verse = true
