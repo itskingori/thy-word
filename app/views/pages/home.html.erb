@@ -1,0 +1,97 @@
+<h1><%= "#{@bible.name} (#{@bible.code})" %></h1>
+
+<h2><%= "#{@book.title} (#{@book.code})" %></h2>
+
+<h3><%= "Chapter #{@chapter.number}" %></h3>
+
+<% @segments.each do |segment| %>
+  <% case segment.style -%>
+  <% when "b" %>
+  <% when "q1", "q2", "q3", "q4" %>
+    <% indent_level = segment.style[/\d+/].to_i %>
+    <% indent_pixels = indent_level * 15 %>
+
+    <%= tag.p style: "text-indent: #{indent_pixels}px;" do %>
+      <% segment.fragments.each do |fragment| %>
+        <% case fragment.kind -%>
+        <% when "note" %>
+          <sup>[<%= @footnotes_mapping[fragment.content.to_i] %>]</sup>
+        <% when "reference" %>
+          <%= link_to fragment.content, "#" %>
+        <% else %>
+          <%= tag.sup fragment&.verse.number if fragment.show_verse %> <%= fragment.content %>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% when "r" %>
+    <p>
+      <% segment.fragments.each do |fragment| %>
+        <% case fragment.kind -%>
+        <% when "note" %>
+          <sup>[<%= @footnotes_mapping[fragment.content.to_i] %>]</sup>
+        <% when "reference" %>
+          <%= link_to fragment.content, "#" %>
+        <% else %>
+          <%= fragment.content %>
+        <% end %>
+      <% end %>
+    </p>
+  <% when "s1" %>
+    <% fragment = segment.fragments[0] %>
+    <h4><%= fragment.content %></h4>
+  <% when "s2" %>
+    <% fragment = segment.fragments[0] %>
+    <h5><%= fragment.content %></h5>
+  <% when "s3" %>
+    <% fragment = segment.fragments[0] %>
+    <h6><%= fragment.content %></h6>
+  <% when "s4" %>
+    <% fragment = segment.fragments[0] %>
+    <b><%= fragment.content %></h6>
+  <% when "m" %>
+    <p>
+      <% segment.fragments.each do |fragment| %>
+        <% case fragment.kind -%>
+        <% when "note" %>
+          <sup>[<%= @footnotes_mapping[fragment.content.to_i] %>]</sup>
+        <% when "reference" %>
+          <%= link_to fragment.content, "#" %>
+        <% else %>
+          <%= tag.sup fragment&.verse.number if fragment.show_verse %> <%= fragment.content %>
+        <% end %>
+      <% end %>
+    </p>
+  <% when "pmo" %>
+    <p>
+      <% segment.fragments.each do |fragment| %>
+        <% case fragment.kind -%>
+        <% when "note" %>
+          <sup>[<%= @footnotes_mapping[fragment.content.to_i] %>]</sup>
+        <% when "reference" %>
+          <%= link_to fragment.content, "#" %>
+        <% else %>
+          <%= tag.sup fragment&.verse.number if fragment.show_verse %> <%= fragment.content %>
+        <% end %>
+      <% end %>
+    </p>
+  <% else %>
+    <p>
+      [<%= segment.style %>] <%= segment%> - <%= segment.fragments.size %>
+    </p>
+  <% end %>
+<% end %>
+
+<hr>
+
+<section id="footnotes">
+  <h3>Footnotes</h3>
+  <ul>
+    <% @footnotes.each do |footnote| %>
+      <li id="fn1">[<%= @footnotes_mapping[footnote.id] %>] <%= footnote.content %> <a href="#ref1">&#x2191;</a></li>
+    <% end %>
+  </ul>
+</section>
+
+<hr>
+
+<p><%= link_to @bible.rights_holder_name, @bible.rights_holder_url %>. <%= @bible.statement %></p>
