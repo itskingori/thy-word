@@ -4,6 +4,16 @@ namespace :bible do
       Rails.logger = Logger.new(STDOUT)
       Rails.logger.level = Logger::INFO
 
+      # Destory bible data
+      Footnote.destroy_all
+      Fragment.destroy_all
+      Segment.destroy_all
+      Verse.destroy_all
+      Heading.destroy_all
+      Chapter.destroy_all
+      Book.destroy_all
+      Bible.destroy_all
+
       # Read bible metadata
       bible_folder = File.join(Rails.root, "db", "data", "bibles", "BSB")
       metadata_file_path = File.join(bible_folder, "metadata.xml")
@@ -43,6 +53,8 @@ namespace :bible do
         heading = nil
         verse = nil
         book_content.root.children.each.with_index(1) do |segment_node, segment_node_id|
+          next unless book.code == "GEN" # TODO: Remove
+
           show_verse = false
 
           case segment_node.node_name
