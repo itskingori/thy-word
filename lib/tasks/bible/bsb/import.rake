@@ -43,6 +43,8 @@ namespace :bible do
         heading = nil
         verse = nil
         book_content.root.children.each.with_index(1) do |segment_node, segment_node_id|
+          show_verse = false
+
           case segment_node.node_name
           when "chapter"
             if segment_node.key?("sid")
@@ -68,11 +70,19 @@ namespace :bible do
             Rails.logger.info "Loaded Bible Book ##{book.number}: [#{book.code}] #{book.title} Chapter ##{chapter&.number} Segment #{segment.id}"
 
             segment_node.children.each do |fragment_node|
+              fragment_text = fragment_node.text.strip
+              fragment_kind = nil
+
               case fragment_node.node_type
               when Nokogiri::XML::Node::ELEMENT_NODE
                 case fragment_node.node_name
+                when "ref"
+                  fragment_kind = "reference"
+                when "note"
+                  fragment_kind = "note"
                 when "verse"
                   if fragment_node.key?("sid")
+                    show_verse = true
                     verse_number = fragment_node["number"].to_i
                     verse = Verse.create!(bible: bible, book: book, chapter: chapter, number: verse_number)
                     Rails.logger.info "Loaded Bible Book ##{book.number}: [#{book.code}] #{book.title} Chapter ##{chapter.number} Verse #{verse.number}"
@@ -80,7 +90,15 @@ namespace :bible do
                     verse = nil
                   end
                 end
+              when Nokogiri::XML::Node::TEXT_NODE
+                fragment_kind = "text"
               end
+
+              next if fragment_text.empty?
+
+              fragment = Fragment.create!(bible: bible, book: book, segment: segment, chapter: chapter, heading: heading, verse: verse, kind: fragment_kind, show_verse: show_verse, content: fragment_text)
+              show_verse = false if fragment.show_verse
+              Rails.logger.info "Loaded Bible Book ##{book.number}: [#{book.code}] #{book.title} Chapter ##{chapter&.number} Segment #{segment.id} Fragment #{fragment.id} (#{fragment.content})"
             end
           end
         end
