@@ -4,6 +4,7 @@ class Segment < ApplicationRecord
   belongs_to :book
   belongs_to :chapter
   belongs_to :heading
+  has_many :fragments, dependent: :restrict_with_exception
 
   # Validations
   validates :bible, presence: true

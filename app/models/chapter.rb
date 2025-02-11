@@ -2,6 +2,7 @@ class Chapter < ApplicationRecord
   # Associations
   belongs_to :bible
   belongs_to :book
+  has_many :fragments, dependent: :restrict_with_exception
   has_many :headings, dependent: :restrict_with_exception
   has_many :segments, dependent: :restrict_with_exception
   has_many :verses, dependent: :restrict_with_exception

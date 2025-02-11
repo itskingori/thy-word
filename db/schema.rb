@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_02_09_182506) do
+ActiveRecord::Schema[8.0].define(version: 2025_02_09_182507) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -45,6 +45,26 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_182506) do
     t.index ["bible_id", "book_id", "number"], name: "index_chapters_on_bible_id_and_book_id_and_number", unique: true
     t.index ["bible_id"], name: "index_chapters_on_bible_id"
     t.index ["book_id"], name: "index_chapters_on_book_id"
+  end
+
+  create_table "fragments", force: :cascade do |t|
+    t.bigint "bible_id", null: false
+    t.bigint "book_id", null: false
+    t.bigint "segment_id", null: false
+    t.bigint "chapter_id", null: false
+    t.bigint "heading_id", null: false
+    t.bigint "verse_id"
+    t.boolean "show_verse", null: false
+    t.string "kind", null: false
+    t.text "content", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["bible_id"], name: "index_fragments_on_bible_id"
+    t.index ["book_id"], name: "index_fragments_on_book_id"
+    t.index ["chapter_id"], name: "index_fragments_on_chapter_id"
+    t.index ["heading_id"], name: "index_fragments_on_heading_id"
+    t.index ["segment_id"], name: "index_fragments_on_segment_id"
+    t.index ["verse_id"], name: "index_fragments_on_verse_id"
   end
 
   create_table "headings", force: :cascade do |t|
@@ -90,6 +110,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_182506) do
   add_foreign_key "books", "bibles", on_delete: :restrict
   add_foreign_key "chapters", "bibles", on_delete: :restrict
   add_foreign_key "chapters", "books", on_delete: :restrict
+  add_foreign_key "fragments", "bibles", on_delete: :restrict
+  add_foreign_key "fragments", "books", on_delete: :restrict
+  add_foreign_key "fragments", "chapters", on_delete: :restrict
+  add_foreign_key "fragments", "headings", on_delete: :restrict
+  add_foreign_key "fragments", "segments", on_delete: :restrict
+  add_foreign_key "fragments", "verses", on_delete: :restrict
   add_foreign_key "headings", "bibles", on_delete: :restrict
   add_foreign_key "headings", "books", on_delete: :restrict
   add_foreign_key "headings", "chapters", on_delete: :restrict

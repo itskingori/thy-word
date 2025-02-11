@@ -3,6 +3,7 @@ class Verse < ApplicationRecord
   belongs_to :bible
   belongs_to :book
   belongs_to :chapter
+  has_many :fragments, dependent: :restrict_with_exception
 
   # Validations
   validates :bible, presence: true
